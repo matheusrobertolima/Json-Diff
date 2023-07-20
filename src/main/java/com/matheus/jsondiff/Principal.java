@@ -10,6 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;  
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Principal {
 
@@ -18,6 +21,7 @@ public class Principal {
  
             String fileName1, file1, location1;  
             String fileName2, file2, location2;
+            String location3;
 
             fileName1 = "calculadora1.json";  
             location1 = "E:\\Biblioteca\\Área de Trabalho\\tcc\\json file";   
@@ -46,6 +50,11 @@ public class Principal {
             Object[] jsonArray = gson.fromJson(diff, Object[].class);
             String formattedJson = gson.toJson(jsonArray);
             System.out.println(formattedJson);
+            
+            location3 = "E:\\Biblioteca\\Área de Trabalho\\tcc\\json file\\diff.json";
+            
+            escreverJsonNoArquivo(formattedJson, location3);
+            
             }
       
         //Método para fazer a leitura do arquivo e transforma-lo em string
@@ -58,11 +67,13 @@ public class Principal {
             return result;  
             } 
     
-
+        private static void escreverJsonNoArquivo(String jsonString, String caminhoArquivo) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(caminhoArquivo))) {
+            // Escrever a string JSON no arquivo
+            writer.write(jsonString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
        
-            
-         
-        
-         
-
 }

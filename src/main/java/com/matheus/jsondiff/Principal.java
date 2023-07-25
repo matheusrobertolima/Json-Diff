@@ -24,14 +24,14 @@ public class Principal {
             String location3;
 
             fileName1 = "calculadora1.json";  
-            location1 = "E:\\Biblioteca\\Área de Trabalho\\tcc\\json file";   
+            location1 = "C:\\Users\\Matheus Lima\\Desktop\\tcc\\json file";   
 
             //Converte o arquivo json em String e salva na variável
             file1 = convertFileIntoString(location1+"\\"+fileName1);  
 
             
             fileName2 = "calculadora2.json";  
-            location2 = "E:\\Biblioteca\\Área de Trabalho\\tcc\\json file";  
+            location2 = "C:\\Users\\Matheus Lima\\Desktop\\tcc\\json file";  
             
              //Converte o arquivo json em String e salva na variável
             file2 = convertFileIntoString(location2+"\\"+fileName2); 
@@ -51,7 +51,7 @@ public class Principal {
             String formattedJson = gson.toJson(jsonArray);
             System.out.println(formattedJson);
             
-            location3 = "E:\\Biblioteca\\Área de Trabalho\\tcc\\json file\\diff.json";
+            location3 = "C:\\Users\\Matheus Lima\\Desktop\\tcc\\json file\\diff.json";
             
             escreverJsonNoArquivo(formattedJson, location3);
             

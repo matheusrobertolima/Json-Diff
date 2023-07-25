@@ -54,7 +54,7 @@ public class Principal {
             //Localização de salvamento do diff em formato json
             location3 = "C:\\Users\\Matheus Lima\\Desktop\\tcc\\json file\\diff.json";
             
-            //Método utilizando as bibliotecas BufferedWriter, FileWriter e IOException para criar o arquivo json
+            //Método utilizando as bibliotecas BufferedWriter, FileWriter e IOException para criar o arquivo json no caminho acima
             escreverJsonNoArquivo(formattedJson, location3);
             
             }

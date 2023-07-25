@@ -6,3 +6,4 @@ For better visualization of the differences between the files, the code utilizes
 
 This implementation is useful for comparing two JSON files and identifying the differences between them, which can be particularly helpful in regression testing or analyzing changes in JSON files.
 
+[VIDEO: In case of Maven Error 501 on NetBeans](https://www.youtube.com/watch?v=OyvqL_UcU9k)

@@ -11,7 +11,9 @@ import java.nio.file.Paths;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,16 +26,15 @@ public class Principal {
  
             String fileName1, file1, location1;  
             String fileName2, file2, location2;
-            String location3;
 
-            fileName1 = "calculadora2.json";  
+            fileName1 = "calculadora1.json";  
             location1 = "C:\\Users\\Matheus Lima\\Desktop\\tcc\\json file";   
 
             //Converte o arquivo json em String e salva na variável
             file1 = convertFileIntoString(location1+"\\"+fileName1);  
 
             
-            fileName2 = "calculadora3.json";  
+            fileName2 = "calculadora2.json";  
             location2 = "C:\\Users\\Matheus Lima\\Desktop\\tcc\\json file";  
             
              //Converte o arquivo json em String e salva na variável
@@ -52,17 +53,17 @@ public class Principal {
                 
             //List<String> pathsList = new ArrayList<>();
             JSONArray jsonArray2 = new JSONArray(diff);
+            List<Diff> diferencaList = new ArrayList<>();       
 
                 for (Object obj : jsonArray2) {
                     JSONObject jsonObject = (JSONObject) obj;
-                    String op = jsonObject.get("op").toString();  
-                    String path = jsonObject.get("path").toString();      
-                    String value = jsonObject.get("value").toString();  
+                    Diff diferenca = new Diff();
+                    
+                    diferenca.setOp(jsonObject.get("op").toString());  
+                    diferenca.setPath(jsonObject.get("path").toString());      
+                    diferenca.setValue(jsonObject.get("value").toString());  
                     //pathsList.add(path);
-                    System.out.println("op: " + op); 
-                    System.out.println("path: " + path); 
-                    System.out.println("value: " + value); 
-                    String[] pathDividido = path.split("/");                      
+                    String[] pathDividido = diferenca.getPath().split("/");                      
                     
                     JSONObject jsonComparador = new JSONObject(file2);  
                     
@@ -78,10 +79,8 @@ public class Principal {
                         
                         if(pathDividido[i].equals("Properties") && pathDividido.length == 3){
                             JSONObject properties = jsonComparador.getJSONObject("Properties");
-                            String nameValue = properties.getString("$Name");
-                            String typeValue = properties.getString("$Type");
-                            System.out.println("name: " + nameValue);   
-                            System.out.println("type: " + typeValue);
+                            diferenca.setName(properties.getString("$Name"));
+                            diferenca.setType(properties.getString("$Type"));
                         }
                         else if(pathDividido[i].equals("$Components") && ocorrencias == 1){
                                                     
@@ -90,10 +89,8 @@ public class Principal {
                             
                             JSONArray componentsArray = properties.getJSONArray(pathDividido[i]);
                             JSONObject secondComponent = componentsArray.getJSONObject(Integer.parseInt(pathDividido[i + 1]));
-                            String nameValue = secondComponent.getString("$Name");
-                            String typeValue = secondComponent.getString("$Type");
-                            System.out.println("name: " + nameValue);  
-                            System.out.println("type: " + typeValue);
+                            diferenca.setName(secondComponent.getString("$Name"));
+                            diferenca.setType(secondComponent.getString("$Type"));
                         }
                         else if (pathDividido[i].equals("$Components") && ocorrencias > 1 && i == 4) {
                             
@@ -104,36 +101,40 @@ public class Principal {
                             JSONObject secondComponent = componentsArray.getJSONObject(Integer.parseInt(pathDividido[3]));
                             JSONArray componentsArray2 = secondComponent.getJSONArray(pathDividido[4]);
                             JSONObject secondComponent2 = componentsArray2.getJSONObject(Integer.parseInt(pathDividido[5]));
-                            String nameValue = secondComponent2.getString("$Name");
-                            String typeValue = secondComponent2.getString("$Type");
-                            System.out.println("name: " + nameValue);  
-                            System.out.println("type: " + typeValue);
+                            diferenca.setName(secondComponent2.getString("$Name"));
+                            diferenca.setType(secondComponent2.getString("$Type"));
                             
                         }
                         }
                         catch (ArrayIndexOutOfBoundsException e) {
                         // Tratamento da exceção ArrayIndexOutOfBoundsException
-                            String nameValue = "Components";
-                            String typeValue = "Components";
-                            System.out.println("name: " + nameValue);  
-                            System.out.println("type: " + typeValue);
+                            diferenca.setName("Components");
+                            diferenca.setType("Components");
               
                         }
-                    } 
+                    }                    
+                  
+                    diferencaList.add(diferenca);
                     
-                   System.out.println("--------");
-                    
-                }  
+                } 
+                
+                Conexao conexao = new Conexao();
+                conexao.criaNodeNeo4j(diferencaList);
+                
+                
+                for(Diff diff2:diferencaList){
+                    System.out.println("op: " + diff2.getOp());
+                    System.out.println("path: " + diff2.getPath());
+                    System.out.println("value: " + diff2.getValue());
+                    System.out.println("name: " + diff2.getName());
+                    System.out.println("type: " + diff2.getType());
+                    System.out.println("----------");
+                }
                 
             } catch (Exception e) {
                 e.printStackTrace();
             }
             
-            //Localização de salvamento do diff em formato json
-            location3 = "C:\\Users\\Matheus Lima\\Desktop\\tcc\\json file\\diff.json";
-            
-            //Método utilizando as bibliotecas BufferedWriter, FileWriter e IOException para criar o arquivo json no caminho acima
-            //escreverJsonNoArquivo(formattedJson, location3);
             
             }
       

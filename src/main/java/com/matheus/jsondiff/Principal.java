@@ -27,15 +27,15 @@ public class Principal {
             String fileName1, file1, location1;  
             String fileName2, file2, location2;
 
-            fileName1 = "calculadora1.json";  
-            location1 = "C:\\Users\\Matheus Lima\\Desktop\\tcc\\json file";   
+            fileName1 = "Screen1.json";  
+            location1 = "C:\\Users\\Matheus Lima\\Desktop\\tcc";   
 
             //Converte o arquivo json em String e salva na variável
             file1 = convertFileIntoString(location1+"\\"+fileName1);  
 
             
-            fileName2 = "calculadora2.json";  
-            location2 = "C:\\Users\\Matheus Lima\\Desktop\\tcc\\json file";  
+            fileName2 = "Screen1_2.json";  
+            location2 = "C:\\Users\\Matheus Lima\\Desktop\\tcc";  
             
              //Converte o arquivo json em String e salva na variável
             file2 = convertFileIntoString(location2+"\\"+fileName2); 
@@ -47,7 +47,9 @@ public class Principal {
             JsonNode node2 = mapper.readTree(file2);
             
             //Comparação usando o import zjsonpatch.JsonDiff retornando TODAS as diferenças
-            String diff = JsonDiff.asJson(node1, node2).toString();        
+            String diff = JsonDiff.asJson(node1, node2).toString();    
+            
+            System.out.println(diff);
               
             try {
                 
@@ -60,8 +62,10 @@ public class Principal {
                     Diff diferenca = new Diff();
                     
                     diferenca.setOp(jsonObject.get("op").toString());  
-                    diferenca.setPath(jsonObject.get("path").toString());      
+                    diferenca.setPath(jsonObject.get("path").toString());   
+                    if(!diferenca.getOp().equals("remove")){
                     diferenca.setValue(jsonObject.get("value").toString());  
+                    }
                     //pathsList.add(path);
                     String[] pathDividido = diferenca.getPath().split("/");                      
                     
@@ -119,7 +123,7 @@ public class Principal {
                 } 
                 
                 Conexao conexao = new Conexao();
-                conexao.criaNodeNeo4j(diferencaList);
+               conexao.criaNodeNeo4j(diferencaList);
                 
                 
                 for(Diff diff2:diferencaList){

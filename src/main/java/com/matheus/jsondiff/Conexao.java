@@ -30,7 +30,7 @@ public class Conexao implements AutoCloseable {
         } finally {
             driver.close();
         }
-        
+        // prov_entity : 
     }
     
     public Conexao(){}

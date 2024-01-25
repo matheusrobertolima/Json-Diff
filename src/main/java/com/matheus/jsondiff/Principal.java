@@ -49,7 +49,7 @@ public class Principal {
             //Comparação usando o import zjsonpatch.JsonDiff retornando TODAS as diferenças
             String diff = JsonDiff.asJson(node1, node2).toString();    
             
-            System.out.println(diff);
+            //System.out.println(diff);
               
             try {
                 
@@ -72,6 +72,16 @@ public class Principal {
                     JSONObject jsonComparador = new JSONObject(file2);  
                     
                     Map<String, Integer> contagem = contarOcorrencias(pathDividido);
+                    
+                    //Pedido da Naira
+                    String ultimoNaoNumerico = null;
+                    
+                    for (String componente : pathDividido) {
+                        // Verifica se o componente não é um número
+                        if (!componente.matches("^\\d+$")) {
+                            ultimoNaoNumerico = componente;
+                        }
+                    }
 
                     String alvo = "$Components";
                     int ocorrencias = contagem.getOrDefault(alvo, 0);                              
@@ -80,21 +90,21 @@ public class Principal {
                       
                     try {
                          
-                        
                         if(pathDividido[i].equals("Properties") && pathDividido.length == 3){
                             JSONObject properties = jsonComparador.getJSONObject("Properties");
                             diferenca.setName(properties.getString("$Name"));
                             diferenca.setType(properties.getString("$Type"));
+                            diferenca.setUltimoPath(ultimoNaoNumerico);
                         }
                         else if(pathDividido[i].equals("$Components") && ocorrencias == 1){
                                                     
                             JSONObject properties = jsonComparador.getJSONObject(pathDividido[i - 1]);
-                            
-                            
+                                  
                             JSONArray componentsArray = properties.getJSONArray(pathDividido[i]);
                             JSONObject secondComponent = componentsArray.getJSONObject(Integer.parseInt(pathDividido[i + 1]));
                             diferenca.setName(secondComponent.getString("$Name"));
                             diferenca.setType(secondComponent.getString("$Type"));
+                            diferenca.setUltimoPath(ultimoNaoNumerico);
                         }
                         else if (pathDividido[i].equals("$Components") && ocorrencias > 1 && i == 4) {
                             
@@ -107,6 +117,7 @@ public class Principal {
                             JSONObject secondComponent2 = componentsArray2.getJSONObject(Integer.parseInt(pathDividido[5]));
                             diferenca.setName(secondComponent2.getString("$Name"));
                             diferenca.setType(secondComponent2.getString("$Type"));
+                            diferenca.setUltimoPath(ultimoNaoNumerico);
                             
                         }
                         }
@@ -114,6 +125,7 @@ public class Principal {
                         // Tratamento da exceção ArrayIndexOutOfBoundsException
                             diferenca.setName("Components");
                             diferenca.setType("Components");
+                            diferenca.setUltimoPath(ultimoNaoNumerico);
               
                         }
                     }                    
@@ -122,16 +134,18 @@ public class Principal {
                     
                 } 
                 
-                Conexao conexao = new Conexao();
-               conexao.criaNodeNeo4j(diferencaList);
+//                Conexao conexao = new Conexao();
+//               conexao.criaNodeNeo4j(diferencaList);
                 
-                
+//criar adição do primeiro json                     
+                     
                 for(Diff diff2:diferencaList){
                     System.out.println("op: " + diff2.getOp());
                     System.out.println("path: " + diff2.getPath());
                     System.out.println("value: " + diff2.getValue());
                     System.out.println("name: " + diff2.getName());
                     System.out.println("type: " + diff2.getType());
+                    System.out.println("ultimo path: " + diff2.getUltimoPath());
                     System.out.println("----------");
                 }
                 

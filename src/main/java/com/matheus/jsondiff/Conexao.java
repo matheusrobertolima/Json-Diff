@@ -14,67 +14,62 @@ public class Conexao implements AutoCloseable {
     
     Driver driver = GraphDatabase.driver("bolt://localhost:7687/", AuthTokens.basic("neo4j", "jsondiff"));
     
-    Pessoa pessoa = new Pessoa("AA");
-    
      @Override
     public void close() throws RuntimeException {
         driver.close();
     }
 
-  public void criaNodeNeo4j(List<Diff> lista){
+  public void criaNodeNeo4j(List<Diff> lista, Pessoa pessoa, String fileName1, String fileName2){
       
-      
-  
-    
     try(Session session = driver.session()){
             
-                //adicionando nó pessoa
-                session.run("CREATE (AA:Agente{name:$name, id: $id})",
-                        parameters("name", pessoa.getName(), "id", pessoa.getId()));
-                //criando os nós 
-                for (Diff diff : lista) {
-                //criar um if que bloqueie a entrada nesse comando quando o nó já existir. 
-                //usei o MERGE, pois cria apenas um nó. sem duplicados. 
-                session.run("MERGE (e:Entidade {path: $path, op: $op, name: $name, type: $type})",
-                          parameters("path", diff.getPath(), "op", diff.getOp(), "name", diff.getName(), "type", diff.getType()));
-                session.run("MERGE (a:Atividade {id: $id, op: $op})",
-                        parameters("id", diff.getId(), "op", diff.getOp()+diff.getName()));
-                session.run("CREATE(p:Propriedade {op: $op, path: $path, name: $name, type: $type})",
-                          parameters("op", diff.getOp()+diff.getPath(), "path", diff.getPath(), "name", diff.getName(), "type", diff.getType()));
-             
-                
-//                session.run ("MATCH (AA:Agente),(a:Atividade)" + 
-//                "WHERE AA.name = 'AA' AND a.op = '"+diff.getOp()+diff.getName()+"'" +
-//                "OPTIONAL MATCH (AA)-[:wasAssociatedWith]->(a) " +
-//                "WHERE a IS NULL "+
-//                "CREATE (AA)-[:wasAssociatedWith]->(a)"); 
+                //adicionando nÃ³ pessoa
+                session.run("MERGE (AA:Agente{name:$name})",
+                        parameters("name", pessoa.getName()));
+                //criando os nÃ³s 
+                for (Diff diff : lista) {            
                  
-                
-                   
-                
-//                session.run ("MATCH (AA:Agente),(a:Atividade),(e:Entidade) " + 
-//                "WHERE AA.name = 'AA' AND a.op = '"+diff.getOp()+diff.getName()+"' AND e.name =  '"+diff.getName()+"' " +
-//                "OPTIONAL MATCH (AA)-[:wasAssociatedWith]->(a) " +
-//                "WHERE a IS NULL " +
-//                "CREATE (AA)-[:wasAssociatedWith]->(a)" +
-//                "WITH AA, a, e " +
-//                "OPTIONAL MATCH (a)-[:wasGenerateBy]->(e)" +
-//                "WHERE e IS NULL " +
-//                "CREATE (a)<-[:wasGenerateBy]-(e)");
-             }     
-//                
-//                
-               
-                
+                session.run("MERGE (e:Entidade {name: $name, versao:$versao})",
+                          parameters("name", diff.getName(), "versao", diff.getVersao()));
+                session.run("CREATE (a:Atividade {op:$op, ultimoPath:$ultimoPath, name:$name})",
+                        parameters("op", diff.getOp()+diff.getUltimoPath(), "ultimoPath", diff.getUltimoPath(), "name", diff.getName()));
+                session.run("MERGE(p:Propriedade {op:$op, name:$name })",
+                          parameters("op", diff.getOp(), "name", diff.getName()));
+
+                    System.out.println("id: " + diff.getId());                   
+                    System.out.println("op: " + diff.getOp());
+                    System.out.println("path: " + diff.getPath());
+                    System.out.println("value: " + diff.getValue());
+                    System.out.println("name: " + diff.getName());
+                    System.out.println("type: " + diff.getType());
+                    System.out.println("ultimo path: " + diff.getUltimoPath());
+                    System.out.println("versão: " + diff.getVersao());
+                    System.out.println("----------");
+                    //value, melhora do algoritmo
+                    //dados do primeiro json = comparar com algum vazio
+                 
+                 //RELACIONANDO AGENTE E ATIVIDADE 
+                    session.run("MATCH (AA:Agente), (a:Atividade)" +
+                       "WHERE AA.name = '"+pessoa.getName()+"' AND a.op = '"+diff.getOp()+diff.getUltimoPath()+"'"+
+                       "MERGE (AA)-[:wasAssociatedWith]->(a)");                              
+
+                    //RELACIONANDO ATIVIDADE E PROPRIEDADE 
+                    session.run("MATCH (a:Atividade), (p:Propriedade)" + 
+                        "WHERE a.name = '"+diff.getName()+"' AND p.name = '"+diff.getName()+"' "+
+                        "MERGE (a)-[r:wasAssociatedWith]->(p)");
                     
-             
-    
+                 //RELACIONANDO PROPRIEDADE E ENTIDADE 
+                    session.run("MATCH (p:Propriedade), (e:Entidade)" +
+                        "WHERE p.name = '"+diff.getName()+"' AND e.name = '"+diff.getName()+"' "+
+                        "MERGE (p)<-[:wasGeneratedBy]-(e)"); 
+           }
     }finally 
         
             {
             driver.close();
             }
-        // prov_entity : 
+    
+    System.out.print("Foram encontrados um total de "+lista.size()+" diferenças entre os arquivos "+fileName1+" e "+fileName2+".");
 
   }   
   

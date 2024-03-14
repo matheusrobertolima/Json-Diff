@@ -11,11 +11,12 @@ public class Diff {
     private String name;
     private String type;
     private String ultimoPath;
+    private int versao;
     
     
     public Diff(){}
     
-    public Diff(int id, String op, String path, String value, String name, String type, String ultimoPath){
+    public Diff(int id, String op, String path, String value, String name, String type, String ultimoPath, int versao){
         this.id = id;
         this.op = op;
         this.path = path;
@@ -23,6 +24,7 @@ public class Diff {
         this.name = name;
         this.type = type;
         this.ultimoPath = ultimoPath;
+        this.versao = versao;
     }
 
      public int getId() {
@@ -79,6 +81,14 @@ public class Diff {
     }
     public void setUltimoPath(String ultimoPath) {
         this.ultimoPath = ultimoPath;
+    }
+
+    public int getVersao() {
+        return versao;
+    }
+
+    public void setVersao(int versao) {
+        this.versao = versao;
     }
     
 }

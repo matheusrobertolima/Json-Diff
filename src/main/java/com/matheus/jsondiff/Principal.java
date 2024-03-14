@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,23 +23,31 @@ import org.json.JSONObject;
 public class Principal {
 
     public static void main(String[] args) throws Exception {
+                 
+            Scanner scanner = new Scanner(System.in);
             
- 
-            String fileName1, file1, location1;  
-            String fileName2, file2, location2;
+            System.out.println("Digite o nome do autor dos JSONS: "); 
+            Pessoa pessoa = new Pessoa();
+            String nome = scanner.nextLine();
+            pessoa.setName(nome);
 
-            fileName1 = "Screen1.json";  
-            location1 = "C:\\Users\\Matheus Lima\\Desktop\\tcc";   
+            System.out.println("Digite a localização da pasta que contém os arquivos para comparação: "); 
+            String location = scanner.nextLine();
 
+            int contador = 1;
+            while(contador > 0){        
+            
+            System.out.println("\nDigite o nome do primeiro arquivo: ");
+            String fileName1 = scanner.nextLine() + ".json";
+            
+            System.out.println("\nDigite o nome do segundo arquivo: ");
+            String fileName2 = scanner.nextLine() + ".json";
+            
             //Converte o arquivo json em String e salva na variável
-            file1 = convertFileIntoString(location1+"\\"+fileName1);  
-
-            
-            fileName2 = "Screen1_2.json";  
-            location2 = "C:\\Users\\Matheus Lima\\Desktop\\tcc";  
+            String file1 = convertFileIntoString(location+"\\"+fileName1);
             
              //Converte o arquivo json em String e salva na variável
-            file2 = convertFileIntoString(location2+"\\"+fileName2); 
+            String file2 = convertFileIntoString(location+"\\"+fileName2); 
             
             ObjectMapper mapper = new ObjectMapper();
             
@@ -48,23 +57,24 @@ public class Principal {
             
             //Comparação usando o import zjsonpatch.JsonDiff retornando TODAS as diferenças
             String diff = JsonDiff.asJson(node1, node2).toString();    
-            
-            //System.out.println(diff);
               
             try {
                 
             //List<String> pathsList = new ArrayList<>();
             JSONArray jsonArray2 = new JSONArray(diff);
-            List<Diff> diferencaList = new ArrayList<>();       
+            List<Diff> diferencaList = new ArrayList<>();            
+            int numerador = 0;
 
                 for (Object obj : jsonArray2) {
                     JSONObject jsonObject = (JSONObject) obj;
                     Diff diferenca = new Diff();
                     
+                    diferenca.setId(numerador);
                     diferenca.setOp(jsonObject.get("op").toString());  
-                    diferenca.setPath(jsonObject.get("path").toString());   
-                    if(!diferenca.getOp().equals("remove")){
-                    diferenca.setValue(jsonObject.get("value").toString());  
+                    diferenca.setPath(jsonObject.get("path").toString()); 
+                    diferenca.setVersao(contador);
+                    if(!diferenca.getOp().equals("remove") && !diferenca.getOp().equals("copy")){  
+                        diferenca.setValue(jsonObject.get("value").toString());  
                     }
                     //pathsList.add(path);
                     String[] pathDividido = diferenca.getPath().split("/");                      
@@ -121,7 +131,7 @@ public class Principal {
                             
                         }
                         }
-                        catch (ArrayIndexOutOfBoundsException e) {
+                    catch (ArrayIndexOutOfBoundsException e) {
                         // Tratamento da exceção ArrayIndexOutOfBoundsException
                             diferenca.setName("Components");
                             diferenca.setType("Components");
@@ -130,30 +140,36 @@ public class Principal {
                         }
                     }                    
                   
-                    diferencaList.add(diferenca);
+                diferencaList.add(diferenca);
+                numerador++;
                     
                 } 
                 
-//                Conexao conexao = new Conexao();
-//               conexao.criaNodeNeo4j(diferencaList);
-                
-//criar adição do primeiro json                     
-                     
-                for(Diff diff2:diferencaList){
-                    System.out.println("op: " + diff2.getOp());
-                    System.out.println("path: " + diff2.getPath());
-                    System.out.println("value: " + diff2.getValue());
-                    System.out.println("name: " + diff2.getName());
-                    System.out.println("type: " + diff2.getType());
-                    System.out.println("ultimo path: " + diff2.getUltimoPath());
-                    System.out.println("----------");
-                }
+               Conexao conexao = new Conexao();
+               conexao.criaNodeNeo4j(diferencaList, pessoa, fileName1, fileName2 );             
                 
             } catch (Exception e) {
                 e.printStackTrace();
             }
             
+            System.out.println("\nDeseja fazer mais comparações? Escreva S ou N");
+            String resposta = scanner.nextLine();
             
+                switch (resposta) {
+                    case "N":
+                    case "n":
+                        contador = -1;
+                        break;
+                    case "S":
+                    case "s":
+                        contador++;
+                        break;
+                    default:
+                        System.out.println("Comando inválido!\nAbortando execução...\nPor favor execute a classe novamente.");
+                        contador = -1;
+                        break;
+                }
+            }
             }
       
         //Método para fazer a leitura do arquivo e transforma-lo em string
@@ -177,7 +193,7 @@ public class Principal {
         
         public static boolean isNumeric(String str) {
         try {
-            int d = Integer.parseInt(str);
+            int e = Integer.parseInt(str);
         } catch (NumberFormatException | NullPointerException e) {
             return false;
         }

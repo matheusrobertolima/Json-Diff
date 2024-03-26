@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -56,7 +57,8 @@ public class Principal {
             JsonNode node2 = mapper.readTree(file2);
             
             //Comparação usando o import zjsonpatch.JsonDiff retornando TODAS as diferenças
-            String diff = JsonDiff.asJson(node1, node2).toString();    
+            String diff = JsonDiff.asJson(node1, node2).toString();  
+            System.out.println(diff);
               
             try {
                 
@@ -73,7 +75,7 @@ public class Principal {
                     diferenca.setOp(jsonObject.get("op").toString());  
                     diferenca.setPath(jsonObject.get("path").toString()); 
                     diferenca.setVersao(contador);
-                    if(!diferenca.getOp().equals("remove") && !diferenca.getOp().equals("copy")){  
+                    if(!diferenca.getOp().equals("remove") && !diferenca.getOp().equals("copy") && !diferenca.getOp().equals("move")){  
                         diferenca.setValue(jsonObject.get("value").toString());  
                     }
                     //pathsList.add(path);
@@ -95,9 +97,9 @@ public class Principal {
 
                     String alvo = "$Components";
                     int ocorrencias = contagem.getOrDefault(alvo, 0);                              
-                    
+
                     for(int i=1; i < pathDividido.length ; i++){
-                      
+                      System.out.println(pathDividido[i]);
                     try {
                          
                         if(pathDividido[i].equals("Properties") && pathDividido.length == 3){
@@ -131,7 +133,7 @@ public class Principal {
                             
                         }
                         }
-                    catch (ArrayIndexOutOfBoundsException e) {
+                    catch (ArrayIndexOutOfBoundsException | JSONException e) {
                         // Tratamento da exceção ArrayIndexOutOfBoundsException
                             diferenca.setName("Components");
                             diferenca.setType("Components");

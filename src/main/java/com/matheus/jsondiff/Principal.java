@@ -36,19 +36,30 @@ public class Principal {
             String location = scanner.nextLine();
 
             int contador = 1;
-            while(contador > 0){        
+            while(contador > 0){    
+                
+            String file1 = "";  
+            String file2 = "";
             
             System.out.println("\nDigite o nome do primeiro arquivo: ");
             String fileName1 = scanner.nextLine() + ".json";
             
-            System.out.println("\nDigite o nome do segundo arquivo: ");
-            String fileName2 = scanner.nextLine() + ".json";
+            String fileName2 = "";
             
-            //Converte o arquivo json em String e salva na variável
-            String file1 = convertFileIntoString(location+"\\"+fileName1);
-            
-             //Converte o arquivo json em String e salva na variável
-            String file2 = convertFileIntoString(location+"\\"+fileName2); 
+            if(contador > 1){
+                file1 = convertFileIntoString(location+"\\"+fileName1);
+                
+                System.out.println("\nDigite o nome do segundo arquivo: ");
+                fileName2 = scanner.nextLine() + ".json";
+
+                //Converte o arquivo json em String e salva na variável
+                file2 = convertFileIntoString(location+"\\"+fileName2); 
+            } 
+            else if(contador == 1){
+                file1 = convertFileIntoString(location+"\\"+fileName1);
+                file2 = file1;
+                file1 = contarComponentes(file1);         
+            }      
             
             ObjectMapper mapper = new ObjectMapper();
             
@@ -58,7 +69,6 @@ public class Principal {
             
             //Comparação usando o import zjsonpatch.JsonDiff retornando TODAS as diferenças
             String diff = JsonDiff.asJson(node1, node2).toString();  
-            System.out.println(diff);
               
             try {
                 
@@ -99,7 +109,7 @@ public class Principal {
                     int ocorrencias = contagem.getOrDefault(alvo, 0);                              
 
                     for(int i=1; i < pathDividido.length ; i++){
-                      System.out.println(pathDividido[i]);
+                        
                     try {
                          
                         if(pathDividido[i].equals("Properties") && pathDividido.length == 3){
@@ -148,14 +158,21 @@ public class Principal {
                 } 
                 
                Conexao conexao = new Conexao();
-               conexao.criaNodeNeo4j(diferencaList, pessoa, fileName1, fileName2 );             
-                
+               conexao.criaNodeNeo4j(diferencaList, pessoa, fileName1, fileName2 );   
+                      
             } catch (Exception e) {
                 e.printStackTrace();
             }
             
-            System.out.println("\nDeseja fazer mais comparações? Escreva S ou N");
-            String resposta = scanner.nextLine();
+            String resposta = "";
+            
+            if(contador > 1){
+                System.out.println("\nDeseja fazer mais comparações? Escreva S ou N");
+                resposta = scanner.nextLine();
+            }
+            else if(contador == 1){
+                resposta = "S";
+            }
             
                 switch (resposta) {
                     case "N":
@@ -171,6 +188,7 @@ public class Principal {
                         contador = -1;
                         break;
                 }
+
             }
             }
       
@@ -210,6 +228,30 @@ public class Principal {
         }
         
         return contagem;
+        }
+        
+        public static String contarComponentes(String primeiroJson){
+        
+            JSONObject json = new JSONObject(primeiroJson);
+            JSONArray componentsArray = json.getJSONObject("Properties").getJSONArray("$Components");
+            int quantidade = componentsArray.length();
+            System.out.println(quantidade);
+            
+            String file1 = "{\"authURL\":[\"creator.kodular.io\"],\"YaVersion\":\"242\",\"Source\":\"Form\",\"Properties\":{\"$Components\":[x]}}";
+            String file2 = "{\"$Components\":[]}";       
+            
+            StringBuilder resultado = new StringBuilder();
+            for (int i = 0; i < quantidade; i++) {
+                resultado.append(file2);
+                if (i < quantidade - 1) {
+                    resultado.append(",");
+                }
+            }
+            
+            String resultadoString = file1.replace("x", resultado.toString());     
+            System.out.println(resultadoString);
+            
+            return resultadoString;
         }
        
         

@@ -30,11 +30,11 @@ public class Conexao implements AutoCloseable {
                 for (Diff diff : lista) {            
                  
             
-                session.run("MERGE (e:Entidade {op:$op, name: $name, versao:$versao})",
+                session.run("MERGE (p:Propriedade {op:$op, name: $name, versao:$versao})",
                           parameters("op", diff.getOp(),"name", diff.getName(), "versao", diff.getVersao()));
                 session.run("MERGE (a:Atividade {op:$op, ultimoPath:$ultimoPath, name:$name, versao:$versao})",
                         parameters("op", diff.getOp()+diff.getUltimoPath(), "ultimoPath", diff.getUltimoPath(), "name", diff.getName(), "versao", diff.getVersao()));
-                session.run("CREATE(p:Propriedade {op:$op, name:$name, ultimoPath:$ultimoPath, versao:$versao, value:$value })",
+                session.run("CREATE(e:Entidade {op:$op, name:$name, ultimoPath:$ultimoPath, versao:$versao, value:$value })",
                           parameters("op", diff.getOp()+diff.getUltimoPath(), "name", diff.getName(), "ultimoPath", diff.getUltimoPath(), "versao", diff.getVersao(), "value", diff.getValue()));
 
                     System.out.println("id: " + diff.getId());                   
@@ -54,20 +54,20 @@ public class Conexao implements AutoCloseable {
                        "MERGE (AA)<-[:wasAssociatedWith]-(a)");     //verificar a direção dos relacionamentos no PROV                          
 
                     //RELACIONANDO ATIVIDADE E PROPRIEDADE 
-                    session.run("MATCH(a:Atividade), (p:Propriedade)" + 
-                          "WHERE a.op = '"+diff.getOp()+diff.getUltimoPath()+"' AND p.op = '"+diff.getOp()+diff.getUltimoPath()+"' AND a.name = '"+diff.getName()+"' AND p.name = '"+diff.getName()+"' AND a.versao = "+diff.getVersao()+" AND p.versao = "+diff.getVersao()+" " +
-                           "MERGE (a)<-[:WasGeneratedBy]-(p)"); //dúvida
+                    session.run("MATCH(a:Atividade), (e:Entidade)" + 
+                          "WHERE a.op = '"+diff.getOp()+diff.getUltimoPath()+"' AND e.op = '"+diff.getOp()+diff.getUltimoPath()+"' AND a.name = '"+diff.getName()+"' AND e.name = '"+diff.getName()+"' AND a.versao = "+diff.getVersao()+" AND e.versao = "+diff.getVersao()+" " +
+                           "MERGE (a)<-[:WasGeneratedBy]-(e)"); //dúvida
                     //relacionamento que já existe, não faz nada. só cria quando qndo for diferente. 
                     
                  //RELACIONANDO PROPRIEDADE E ENTIDADE 
-                    session.run("MATCH(p:Propriedade), (e:Entidade)" + //tirei o ultimo path, pois as entidades estavam duplicando
-                        "WHERE p.name = '"+diff.getName()+"' AND e.name = '"+diff.getName()+"' AND p.op = '"+diff.getOp()+diff.getUltimoPath()+"' AND e.op = '"+diff.getOp()+"'AND p.versao = "+diff.getVersao()+" AND e.versao = "+diff.getVersao()+" "+ 
-                        "MERGE (p)<-[:HadMember]-(e)"); 
+                    session.run("MATCH(e:Entidade), (p:Propriedade)" + //tirei o ultimo path, pois as entidades estavam duplicando
+                        "WHERE e.name = '"+diff.getName()+"' AND p.name = '"+diff.getName()+"' AND e.op = '"+diff.getOp()+diff.getUltimoPath()+"' AND p.op = '"+diff.getOp()+"'AND e.versao = "+diff.getVersao()+" AND p.versao = "+diff.getVersao()+" "+ 
+                        "MERGE (e)<-[:AlternateOf]-(p)"); 
             
                 //RELACIONANDO ENTIDADES  
-                    session.run("MATCH (e1:Entidade), (e2:Entidade)" +
-                      "WHERE e1.name = e2.name AND e2.versao = e1.versao - 1 "+
-                      "MERGE (e1)<-[:WasDerivedFrom]-(e2)"); 
+                    session.run("MATCH (p1:Propriedade), (p2:Propriedade)" +
+                      "WHERE p1.name = p2.name AND p2.versao = p1.versao - 1 "+
+                      "MERGE (p1)<-[:WasDerivedFrom]-(p2)"); 
                     
 
            }

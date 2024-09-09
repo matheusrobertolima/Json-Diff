@@ -5,13 +5,12 @@ package com.matheus.jsondiff;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.zjsonpatch.DiffFlags;
 import com.flipkart.zjsonpatch.JsonDiff;
 import java.nio.file.Files;  
 import java.nio.file.Paths;  
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,9 @@ public class Principal {
             JsonNode node2 = mapper.readTree(file2);
             
             //Comparação usando o import zjsonpatch.JsonDiff retornando TODAS as diferenças
-            String diff = JsonDiff.asJson(node1, node2).toString();  
+            EnumSet<DiffFlags> flags = DiffFlags.dontNormalizeOpIntoMoveAndCopy().clone();
+            String diff = JsonDiff.asJson(node1, node2, flags).toString();
+            System.out.println(diff);
               
             try {
                 
@@ -201,24 +202,6 @@ public class Principal {
 
             return result;  
         } 
-    
-        private static void escreverJsonNoArquivo(String jsonString, String caminhoArquivo) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(caminhoArquivo))) {
-            // Escrever a string JSON no arquivo
-            writer.write(jsonString);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        }
-        
-        public static boolean isNumeric(String str) {
-        try {
-            int e = Integer.parseInt(str);
-        } catch (NumberFormatException | NullPointerException e) {
-            return false;
-        }
-        return true;
-        }
         
         public static Map<String, Integer> contarOcorrencias(String[] lista) {
         Map<String, Integer> contagem = new HashMap<>();

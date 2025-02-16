@@ -69,7 +69,7 @@ public class Principal {
             //Comparação usando o import zjsonpatch.JsonDiff retornando TODAS as diferenças
             EnumSet<DiffFlags> flags = DiffFlags.dontNormalizeOpIntoMoveAndCopy().clone();
             String diff = JsonDiff.asJson(node1, node2, flags).toString();
-            System.out.println(diff);
+            //System.out.println(diff);
               
             try {
                 
@@ -83,12 +83,14 @@ public class Principal {
                     Diff diferenca = new Diff();
                     
                     diferenca.setId(numerador);
-                    diferenca.setOp(jsonObject.get("op").toString());  
+                    diferenca.setOp(jsonObject.get("op").toString());
+                    
+                    if(diferenca.getOp().equals("add") || diferenca.getOp().equals("replace") || (diferenca.getOp().equals("remove") && contador != 1)){
                     diferenca.setPath(jsonObject.get("path").toString()); 
                     diferenca.setVersao(contador);
-                    if(!diferenca.getOp().equals("remove") && !diferenca.getOp().equals("copy") && !diferenca.getOp().equals("move")){  
-                        diferenca.setValue(jsonObject.get("value").toString());  
-                    }
+                        if(!diferenca.getOp().equals("remove")){  
+                            diferenca.setValue(jsonObject.get("value").toString());  
+                        }
                     //pathsList.add(path);
                     String[] pathDividido = diferenca.getPath().split("/");                      
                     
@@ -155,11 +157,17 @@ public class Principal {
                   
                 diferencaList.add(diferenca);
                 numerador++;
-                    
+                }  
                 } 
                 
                Conexao conexao = new Conexao();
-               conexao.criaNodeNeo4j(diferencaList, pessoa, fileName1, fileName2 );   
+               for(Diff diff2 : diferencaList){
+                   System.out.println(diff2.getOp());
+                   System.out.println(diff2.getName());
+                   System.out.println(diff2.getValue());
+                   System.out.println("||");
+               }
+               //conexao.criaNodeNeo4j(diferencaList, pessoa, fileName1, fileName2 );   
                       
             } catch (Exception e) {
                 e.printStackTrace();
@@ -218,7 +226,6 @@ public class Principal {
             JSONObject json = new JSONObject(primeiroJson);
             JSONArray componentsArray = json.getJSONObject("Properties").getJSONArray("$Components");
             int quantidade = componentsArray.length();
-            System.out.println(quantidade);
             
             String file1 = "{\"authURL\":[\"creator.kodular.io\"],\"YaVersion\":\"242\",\"Source\":\"Form\",\"Properties\":{\"$Components\":[x]}}";
             String file2 = "{\"$Components\":[]}";       
@@ -232,7 +239,6 @@ public class Principal {
             }
             
             String resultadoString = file1.replace("x", resultado.toString());     
-            System.out.println(resultadoString);
             
             return resultadoString;
         }

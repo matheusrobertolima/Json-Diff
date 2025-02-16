@@ -161,13 +161,7 @@ public class Principal {
                 } 
                 
                Conexao conexao = new Conexao();
-               for(Diff diff2 : diferencaList){
-                   System.out.println(diff2.getOp());
-                   System.out.println(diff2.getName());
-                   System.out.println(diff2.getValue());
-                   System.out.println("||");
-               }
-               //conexao.criaNodeNeo4j(diferencaList, pessoa, fileName1, fileName2 );   
+               conexao.criaNodeNeo4j(diferencaList, pessoa, fileName1, fileName2 );   
                       
             } catch (Exception e) {
                 e.printStackTrace();
